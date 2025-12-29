@@ -49,8 +49,11 @@
   },
   "dependencies": {
     "@libsql/client": "^0.15.15",
+    "@types/marked": "^6.0.0",
     "drizzle-orm": "^0.45.1",
     "electron-squirrel-startup": "^1.0.1",
+    "highlight.js": "^11.11.1",
+    "marked": "^17.0.1",
     "node-llama-cpp": "^3.14.5",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"

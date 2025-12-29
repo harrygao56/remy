@@ -1,4 +1,21 @@
-export {}; // Make this a module
+import { marked } from "marked";
+import hljs from "highlight.js";
+
+// Configure marked with syntax highlighting
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+});
+
+// Custom renderer for code blocks with syntax highlighting
+const renderer = new marked.Renderer();
+renderer.code = ({ text, lang }: { text: string; lang?: string }) => {
+  const language = lang && hljs.getLanguage(lang) ? lang : "plaintext";
+  const highlighted = hljs.highlight(text, { language }).value;
+  return `<pre><code class="hljs language-${language}">${highlighted}</code></pre>`;
+};
+
+marked.use({ renderer });
 
 interface Conversation {
   id: string;
@@ -92,6 +109,10 @@ async function loadMessages() {
   scrollToBottom();
 }
 
+function renderMarkdown(content: string): string {
+  return marked.parse(content) as string;
+}
+
 function appendMessage(
   role: "user" | "assistant",
   content: string
@@ -102,9 +123,14 @@ function appendMessage(
 
   const msgEl = document.createElement("div");
   msgEl.className = `message ${role}`;
+
+  // Use markdown for assistant messages, escape HTML for user messages
+  const renderedContent =
+    role === "assistant" ? renderMarkdown(content) : escapeHtml(content);
+
   msgEl.innerHTML = `
     <div class="message-role">${role}</div>
-    <div class="message-content">${escapeHtml(content)}</div>
+    <div class="message-content">${renderedContent}</div>
   `;
   messagesEl.appendChild(msgEl);
   return msgEl;
@@ -187,7 +213,7 @@ async function sendMessage() {
 
   const unsubscribe = window.api.llm.onChunk((chunk: string) => {
     fullResponse += chunk;
-    contentEl.textContent = fullResponse;
+    contentEl.innerHTML = renderMarkdown(fullResponse);
     scrollToBottom();
   });
 
