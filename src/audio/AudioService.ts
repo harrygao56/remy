@@ -96,9 +96,6 @@ class AudioService {
       data.set(this.frames[i], i * frameLength);
     }
 
-    console.log("Max sample value:", Math.max(...data.slice(0, 1000)));
-    console.log("Min sample value:", Math.min(...data.slice(0, 1000)));
-
     const floatData = new Float32Array(data.length);
     for (let i = 0; i < data.length; i++) {
       floatData[i] = data[i] / 32768.0;
@@ -106,7 +103,6 @@ class AudioService {
 
     this.vad.reset();
 
-    let index = 0;
     let finalText = "";
     const bufferSizeInSeconds = 30;
     const buffer = new sherpaOnnx.CircularBuffer(
@@ -115,7 +111,6 @@ class AudioService {
     const windowSize = this.vad.config.sileroVad.windowSize;
 
     buffer.push(floatData);
-    console.log("Buffer size:", buffer.size());
     while (buffer.size() >= windowSize) {
       const samples = buffer.get(buffer.head(), windowSize, false);
       buffer.pop(windowSize);
@@ -123,8 +118,6 @@ class AudioService {
     }
 
     this.vad.flush();
-
-    console.log("VAD is empty:", this.vad.isEmpty());
 
     while (!this.vad.isEmpty()) {
       const segment = this.vad.front(false);
@@ -138,9 +131,6 @@ class AudioService {
       const r = this.recognizer.getResult(stream);
       if (r.text.length > 0) {
         const text = r.text.toLowerCase().trim();
-        console.log(`${index}: ${text}`);
-
-        index += 1;
         finalText += text;
       }
     }
