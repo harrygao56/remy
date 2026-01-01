@@ -243,10 +243,16 @@ async function sendMessage(content: string) {
 
   // Get all messages for context
   const messages = await window.api.getMessages(currentConversationId);
-  const chatMessages = messages.map((m: Message) => ({
-    role: m.role,
-    content: m.content,
-  }));
+  const chatMessages = [
+    {
+      role: "system" as const,
+      content: `You are Remy, a friendly AI cooking assistant. You help users with cooking questions, provide recipes, suggest ingredient substitutions, and offer culinary tips. Keep your responses concise and helpful. Always format your responses in Markdown.`,
+    },
+    ...messages.map((m: Message) => ({
+      role: m.role,
+      content: m.content,
+    })),
+  ];
 
   // Start streaming response
   isStreaming = true;
