@@ -1,7 +1,6 @@
-import * as fs from "fs";
-
 import type { Llama, LlamaModel } from "node-llama-cpp";
 import path from "path";
+import { app } from "electron";
 
 const MODEL = "LFM2 8B A1B GGUF.gguf";
 
@@ -17,6 +16,18 @@ async function loadLlamaCpp() {
   )) as typeof import("node-llama-cpp");
 }
 
+/**
+ * Get the path to the models directory.
+ * In development: ./resources/models
+ * In production: {resourcesPath}/resources/models
+ */
+function getModelsPath(): string {
+  if (app.isPackaged) {
+    return path.join(process.resourcesPath, "resources", "models");
+  }
+  return path.join(__dirname, "..", "..", "resources", "models");
+}
+
 class LlamaService {
   private llama: Llama | null = null;
   private model: LlamaModel | null = null;
@@ -24,7 +35,7 @@ class LlamaService {
   private llamaCpp: Awaited<ReturnType<typeof loadLlamaCpp>> | null = null;
 
   private getModelPath(): string {
-    return path.join(__dirname, "../../resources/models", MODEL);
+    return path.join(getModelsPath(), MODEL);
   }
 
   async start(): Promise<void> {

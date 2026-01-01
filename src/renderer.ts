@@ -48,6 +48,10 @@ interface Api {
     ) => Promise<string>;
     onChunk: (callback: (chunk: string) => void) => () => void;
   };
+  audio: {
+    startRecording: () => Promise<void>;
+    stopRecording: () => Promise<string | null>;
+  };
 }
 
 declare global {
@@ -59,12 +63,21 @@ declare global {
 let currentConversationId: string | null = null;
 let isStreaming = false;
 
+type RecordingState = "idle" | "recording" | "confirm";
+let recordingState: RecordingState = "idle";
+let currentTranscription = "";
+
 const chatListEl = document.getElementById("chat-list") as HTMLDivElement;
 const messagesEl = document.getElementById("messages") as HTMLDivElement;
-const messageInput = document.getElementById(
-  "message-input"
-) as HTMLTextAreaElement;
-const sendBtn = document.getElementById("send-btn") as HTMLButtonElement;
+const recordBtn = document.getElementById("record-btn") as HTMLButtonElement;
+const transcriptionPreview = document.getElementById(
+  "transcription-preview"
+) as HTMLDivElement;
+const transcriptionText = document.getElementById(
+  "transcription-text"
+) as HTMLDivElement;
+const confirmBtn = document.getElementById("confirm-btn") as HTMLButtonElement;
+const retryBtn = document.getElementById("retry-btn") as HTMLButtonElement;
 const newChatBtn = document.getElementById("new-chat-btn") as HTMLButtonElement;
 
 async function loadConversations() {
@@ -165,23 +178,57 @@ function createNewChat() {
   currentConversationId = null;
   messagesEl.innerHTML =
     '<div class="empty-state">Start a new conversation</div>';
-  messageInput.value = "";
+  resetRecordingUI();
   loadConversations();
 }
 
-async function sendMessage() {
-  const content = messageInput.value.trim();
-  if (!content || isStreaming) return;
+function resetRecordingUI() {
+  recordingState = "idle";
+  currentTranscription = "";
+  recordBtn.textContent = "Start Recording";
+  recordBtn.classList.remove("recording");
+  recordBtn.disabled = false;
+  recordBtn.style.display = "block";
+  transcriptionPreview.style.display = "none";
+}
+
+function updateRecordingUI(state: RecordingState) {
+  recordingState = state;
+
+  if (state === "idle") {
+    recordBtn.textContent = "Start Recording";
+    recordBtn.classList.remove("recording");
+    recordBtn.disabled = false;
+    recordBtn.style.display = "block";
+    transcriptionPreview.style.display = "none";
+  } else if (state === "recording") {
+    recordBtn.textContent = "Stop Recording";
+    recordBtn.classList.add("recording");
+    recordBtn.disabled = false;
+    recordBtn.style.display = "block";
+    transcriptionPreview.style.display = "none";
+  } else if (state === "confirm") {
+    recordBtn.textContent = "Start Recording";
+    recordBtn.classList.remove("recording");
+    recordBtn.disabled = false;
+    recordBtn.style.display = "none";
+    transcriptionText.textContent =
+      currentTranscription || "(No speech detected)";
+    transcriptionPreview.style.display = "flex";
+  }
+}
+
+async function sendMessage(content: string) {
+  const trimmedContent = content.trim();
+  if (!trimmedContent || isStreaming) return;
 
   if (!currentConversationId) {
     let title: string;
     try {
-      title = await generateChatName(content);
+      title = await generateChatName(trimmedContent);
     } catch (err) {
       console.error("Failed to generate chat name:", err);
     }
-
-    console.log("title", title);
 
     const conversation = await window.api.createConversation(title);
     currentConversationId = conversation.id;
@@ -189,9 +236,9 @@ async function sendMessage() {
   }
 
   // Add user message
-  await window.api.addMessage(currentConversationId, "user", content);
-  appendMessage("user", content);
-  messageInput.value = "";
+  await window.api.addMessage(currentConversationId, "user", trimmedContent);
+  appendMessage("user", trimmedContent);
+  resetRecordingUI();
   scrollToBottom();
 
   // Get all messages for context
@@ -203,7 +250,7 @@ async function sendMessage() {
 
   // Start streaming response
   isStreaming = true;
-  sendBtn.disabled = true;
+  recordBtn.disabled = true;
 
   const assistantMsgEl = appendMessage("assistant", "");
   const contentEl = assistantMsgEl.querySelector(
@@ -233,26 +280,54 @@ async function sendMessage() {
   } finally {
     unsubscribe();
     isStreaming = false;
-    sendBtn.disabled = false;
+    recordBtn.disabled = false;
   }
+}
+
+async function handleRecordClick() {
+  if (isStreaming) return;
+
+  if (recordingState === "idle") {
+    // Start recording
+    try {
+      updateRecordingUI("recording");
+      await window.api.audio.startRecording();
+    } catch (err) {
+      console.error("Failed to start recording:", err);
+      updateRecordingUI("idle");
+    }
+  } else if (recordingState === "recording") {
+    // Stop recording and transcribe
+    try {
+      recordBtn.disabled = true;
+      recordBtn.textContent = "Processing...";
+      const text = await window.api.audio.stopRecording();
+      currentTranscription = text || "";
+      updateRecordingUI("confirm");
+    } catch (err) {
+      console.error("Failed to stop recording:", err);
+      updateRecordingUI("idle");
+    }
+  }
+}
+
+async function handleConfirm() {
+  if (currentTranscription.trim()) {
+    await sendMessage(currentTranscription);
+  } else {
+    resetRecordingUI();
+  }
+}
+
+function handleRetry() {
+  resetRecordingUI();
 }
 
 // Event listeners
 newChatBtn.onclick = createNewChat;
-sendBtn.onclick = sendMessage;
-
-messageInput.onkeydown = (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-};
-
-// Auto-resize textarea
-messageInput.oninput = () => {
-  messageInput.style.height = "auto";
-  messageInput.style.height = Math.min(messageInput.scrollHeight, 200) + "px";
-};
+recordBtn.onclick = handleRecordClick;
+confirmBtn.onclick = handleConfirm;
+retryBtn.onclick = handleRetry;
 
 // Initial load
 loadConversations();

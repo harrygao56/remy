@@ -34,13 +34,13 @@
       }
 
       .sidebar-header {
-        padding: 48px 16px 16px;
+        padding: 48px 12px 12px;
         border-bottom: 1px solid #222;
       }
 
       .new-chat-btn {
         width: 100%;
-        padding: 10px 16px;
+        padding: 14px 12px;
         background: #fff;
         border: 1px solid #222;
         cursor: pointer;
@@ -129,7 +129,7 @@
 
       /* Input area */
       .input-area {
-        padding: 16px 24px 24px;
+        padding: 8px 12px 12px;
         border-top: 1px solid #eee;
       }
 
@@ -137,42 +137,103 @@
         max-width: 700px;
         margin: 0 auto;
         display: flex;
+        flex-direction: column;
         gap: 8px;
       }
 
-      .input-wrapper textarea {
-        flex: 1;
-        padding: 12px 16px;
-        border: 1px solid #222;
-        font-size: 15px;
-        font-family: inherit;
-        resize: none;
-        min-height: 48px;
-        max-height: 200px;
-      }
-
-      .input-wrapper textarea:focus {
-        outline: none;
-        border-color: #000;
-      }
-
-      .send-btn {
-        padding: 12px 20px;
+      .record-btn {
+        width: 100%;
+        padding: 14px 12px;
         background: #111;
         color: #fff;
-        border: none;
+        border: 1px solid #222;
         cursor: pointer;
         font-size: 14px;
-        font-weight: 500;
+        transition: background 0.2s;
       }
 
-      .send-btn:hover {
+      .record-btn:hover {
         background: #333;
       }
 
-      .send-btn:disabled {
+      .record-btn:disabled {
         background: #888;
         cursor: not-allowed;
+      }
+
+      .record-btn.recording {
+        background: #cc0000;
+        border-color: #cc0000;
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+
+      .record-btn.recording:hover {
+        background: #aa0000;
+        border-color: #aa0000;
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      .transcription-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+
+      .transcription-text {
+        font-size: 15px;
+        line-height: 1.5;
+        color: #111;
+        padding: 0;
+        max-height: 135px;
+        overflow-y: auto;
+      }
+
+      .confirm-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+        width: 100%;
+      }
+
+      .confirm-btn,
+      .retry-btn {
+        flex: 1;
+        padding: 14px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+      }
+
+      .confirm-btn {
+        background: #111;
+        color: #fff;
+        border: 1px solid #222;
+      }
+
+      .confirm-btn:hover {
+        background: #333;
+      }
+
+      .retry-btn {
+        background: #fff;
+        color: #111;
+        border: 1px solid #222;
+      }
+
+      .retry-btn:hover {
+        background: #f5f5f5;
       }
 
       /* Markdown Styles */
@@ -378,8 +439,14 @@
         </div>
         <div class="input-area">
           <div class="input-wrapper">
-            <textarea id="message-input" placeholder="Type a message..." rows="1"></textarea>
-            <button class="send-btn" id="send-btn">Send</button>
+            <button class="record-btn" id="record-btn">Start Recording</button>
+            <div class="transcription-preview" id="transcription-preview" style="display: none;">
+              <div class="transcription-text" id="transcription-text"></div>
+              <div class="confirm-actions">
+                <button class="confirm-btn" id="confirm-btn">Confirm</button>
+                <button class="retry-btn" id="retry-btn">Retry</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

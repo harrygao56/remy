@@ -118,3 +118,4 @@ desktop.ini
 
 # Large model files (downloaded at build time)
 resources/models/*.gguf
+resources/models/sherpa/

@@ -20,4 +20,8 @@ contextBridge.exposeInMainWorld("api", {
       return () => ipcRenderer.removeListener("llm:chunk", handler);
     },
   },
+  audio: {
+    startRecording: () => ipcRenderer.invoke("audio:startRecording"),
+    stopRecording: () => ipcRenderer.invoke("audio:stopRecording"),
+  },
 });

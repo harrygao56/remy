@@ -21,5 +21,7 @@ export const mainConfig: Configuration = {
     "@libsql/client": "commonjs @libsql/client",
     libsql: "commonjs libsql",
     "node-llama-cpp": "commonjs node-llama-cpp",
+    "sherpa-onnx-node": "commonjs sherpa-onnx-node",
+    "@picovoice/pvrecorder-node": "commonjs @picovoice/pvrecorder-node",
   },
 };
