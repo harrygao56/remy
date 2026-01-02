@@ -246,7 +246,7 @@ async function sendMessage(content: string) {
   const chatMessages = [
     {
       role: "system" as const,
-      content: `You are Remy, a friendly AI cooking assistant. You help users with cooking questions, provide recipes, suggest ingredient substitutions, and offer culinary tips. Keep your responses concise and helpful. Always format your responses in Markdown.`,
+      content: `You are Remy, a friendly AI cooking assistant. You help users with cooking questions, provide recipes, suggest ingredient substitutions, and offer culinary tips . Always format your responses in Markdown.`,
     },
     ...messages.map((m: Message) => ({
       role: m.role,
