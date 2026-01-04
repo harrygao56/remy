@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, systemPreferences } from "electron";
 import {
   createConversation,
   getConversations,
@@ -82,7 +82,16 @@ app.whenReady().then(async () => {
     }
   );
 
-  ipcMain.handle("audio:startRecording", () => {
+  ipcMain.handle("audio:startRecording", async () => {
+    if (process.platform === "darwin") {
+      const status = systemPreferences.getMediaAccessStatus("microphone");
+      if (status !== "granted") {
+        const granted = await systemPreferences.askForMediaAccess("microphone");
+        if (!granted) {
+          throw new Error("Microphone permission denied");
+        }
+      }
+    }
     return audioService.startRecording();
   });
 

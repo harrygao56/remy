@@ -7,14 +7,64 @@ import { AutoUnpackNativesPlugin } from "@electron-forge/plugin-auto-unpack-nati
 import { WebpackPlugin } from "@electron-forge/plugin-webpack";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
+import * as path from "path";
+import * as fs from "fs";
 
 import { mainConfig } from "./webpack.main.config";
 import { rendererConfig } from "./webpack.renderer.config";
 
+function copyDirSync(src: string, dest: string) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      unpack:
+        "**/node_modules/{sherpa-onnx-node,sherpa-onnx-darwin-arm64,@picovoice/pvrecorder-node}/**",
+    },
     extraResource: ["./resources"],
+    extendInfo: {
+      NSMicrophoneUsageDescription:
+        "This app needs access to the microphone for voice recognition.",
+    },
+    afterCopy: [
+      (buildPath, _electronVersion, _platform, _arch, callback) => {
+        // Copy native modules so they get included in the asar (then unpacked)
+        const nativeModules = [
+          "sherpa-onnx-node",
+          "sherpa-onnx-darwin-arm64",
+          "@picovoice/pvrecorder-node",
+        ];
+        const nodeModulesDest = path.join(buildPath, "node_modules");
+        fs.mkdirSync(nodeModulesDest, { recursive: true });
+
+        for (const mod of nativeModules) {
+          const src = path.join(__dirname, "node_modules", mod);
+          // Handle scoped packages like @picovoice/pvrecorder-node
+          const destDir = mod.startsWith("@")
+            ? path.join(nodeModulesDest, mod.split("/")[0])
+            : nodeModulesDest;
+          const dest = path.join(nodeModulesDest, ...mod.split("/"));
+
+          if (fs.existsSync(src)) {
+            fs.mkdirSync(destDir, { recursive: true });
+            copyDirSync(src, dest);
+            console.log(`Copied ${mod} to app bundle`);
+          }
+        }
+        callback();
+      },
+    ],
   },
   rebuildConfig: {},
   makers: [
@@ -49,8 +99,8 @@ const config: ForgeConfig = {
       [FuseV1Options.EnableCookieEncryption]: true,
       [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
-      [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-      [FuseV1Options.OnlyLoadAppFromAsar]: true,
+      [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: false,
+      [FuseV1Options.OnlyLoadAppFromAsar]: false,
     }),
   ],
 };

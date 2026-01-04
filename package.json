@@ -49,8 +49,8 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@libsql/client": "^0.15.15",
     "@picovoice/pvrecorder-node": "^1.2.8",
+    "better-sqlite3": "^12.5.0",
     "drizzle-orm": "^0.45.1",
     "electron-squirrel-startup": "^1.0.1",
     "highlight.js": "^11.11.1",

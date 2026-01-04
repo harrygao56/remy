@@ -18,10 +18,7 @@ export const mainConfig: Configuration = {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".json"],
   },
   externals: {
-    "@libsql/client": "commonjs @libsql/client",
-    libsql: "commonjs libsql",
-    "node-llama-cpp": "commonjs node-llama-cpp",
-    "sherpa-onnx-node": "commonjs sherpa-onnx-node",
-    "@picovoice/pvrecorder-node": "commonjs @picovoice/pvrecorder-node",
+    "sherpa-onnx-node": "commonjs2 sherpa-onnx-node",
+    "@picovoice/pvrecorder-node": "commonjs2 @picovoice/pvrecorder-node",
   },
 };
