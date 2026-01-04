@@ -30,7 +30,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: {
       unpack:
-        "**/node_modules/{sherpa-onnx-node,sherpa-onnx-darwin-arm64,@picovoice/pvrecorder-node}/**",
+        "**/node_modules/{sherpa-onnx-node,sherpa-onnx-darwin-*,sherpa-onnx-linux-*,@picovoice/pvrecorder-node,better-sqlite3}/**",
     },
     extraResource: ["./resources"],
     extendInfo: {
@@ -38,11 +38,26 @@ const config: ForgeConfig = {
         "This app needs access to the microphone for voice recognition.",
     },
     afterCopy: [
-      (buildPath, _electronVersion, _platform, _arch, callback) => {
+      (buildPath, _electronVersion, platform, arch, callback) => {
+        const getSherpaPackage = (plat: string, ar: string) => {
+          if (plat === "darwin") {
+            return ar === "arm64"
+              ? "sherpa-onnx-darwin-arm64"
+              : "sherpa-onnx-darwin-x64";
+          } else if (plat === "linux") {
+            return ar === "arm64"
+              ? "sherpa-onnx-linux-arm64"
+              : "sherpa-onnx-linux-x64";
+          } else if (plat === "win32") {
+            return "sherpa-onnx-win-x64";
+          }
+          return "sherpa-onnx-darwin-arm64";
+        };
+
         // Copy native modules so they get included in the asar (then unpacked)
         const nativeModules = [
           "sherpa-onnx-node",
-          "sherpa-onnx-darwin-arm64",
+          getSherpaPackage(platform, arch),
           "@picovoice/pvrecorder-node",
         ];
         const nodeModulesDest = path.join(buildPath, "node_modules");
@@ -50,7 +65,6 @@ const config: ForgeConfig = {
 
         for (const mod of nativeModules) {
           const src = path.join(__dirname, "node_modules", mod);
-          // Handle scoped packages like @picovoice/pvrecorder-node
           const destDir = mod.startsWith("@")
             ? path.join(nodeModulesDest, mod.split("/")[0])
             : nodeModulesDest;
