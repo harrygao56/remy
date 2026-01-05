@@ -2,7 +2,7 @@ import type { Llama, LlamaModel } from "node-llama-cpp";
 import path from "path";
 import { app } from "electron";
 
-const MODEL = "LFM2 8B A1B GGUF.gguf";
+const MODEL = "LFM2 1.2B GGUF.gguf";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";

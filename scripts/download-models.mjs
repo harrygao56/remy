@@ -11,8 +11,8 @@ const SHERPA_DIR = join(MODELS_DIR, 'sherpa');
 // LLM models
 const LLM_MODELS = [
   {
-    name: 'LFM2 8B A1B GGUF.gguf',
-    url: 'https://huggingface.co/LiquidAI/LFM2-8B-A1B-GGUF/resolve/main/LFM2-8B-A1B-Q4_K_M.gguf'
+    name: 'LFM2 1.2B GGUF.gguf',
+    url: 'https://huggingface.co/LiquidAI/LFM2-1.2B-GGUF/resolve/main/LFM2-1.2B-Q4_K_M.gguf?download=true'
   },
 ];
 
