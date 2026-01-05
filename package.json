@@ -59,6 +59,6 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "sherpa-onnx-node": "^1.12.20",
-    "sherpa-onnx-linux-arm64": "^1.12.20"
+    "sherpa-onnx-linux-arm64": "^1.12.19"
   }
 }
