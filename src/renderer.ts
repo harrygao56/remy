@@ -46,7 +46,7 @@ interface Api {
       messages: { role: "user" | "assistant" | "system"; content: string }[],
       maxTokens?: number
     ) => Promise<string>;
-    setChunkHandler: (callback: ((chunk: string) => void) | null) => void;
+    onChunk: (callback: (chunk: string) => void) => () => void;
   };
   audio: {
     startRecording: () => Promise<void>;
@@ -264,8 +264,7 @@ async function sendMessage(content: string) {
   ) as HTMLDivElement;
   let fullResponse = "";
 
-  // Set up the chunk handler
-  window.api.llm.setChunkHandler((chunk: string) => {
+  const unsubscribe = window.api.llm.onChunk((chunk: string) => {
     fullResponse += chunk;
     contentEl.innerHTML = renderMarkdown(fullResponse);
     scrollToBottom();
@@ -285,8 +284,7 @@ async function sendMessage(content: string) {
     console.error("Chat error:", err);
     contentEl.textContent = "Error: Failed to get response";
   } finally {
-    // Clear the chunk handler
-    window.api.llm.setChunkHandler(null);
+    unsubscribe();
     isStreaming = false;
     recordBtn.disabled = false;
   }

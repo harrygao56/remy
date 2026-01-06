@@ -2,16 +2,6 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import type { ChatMessage } from "./llama/LlamaService";
 
-// Store the current chunk handler - only one can be active at a time
-let currentChunkHandler: ((chunk: string) => void) | null = null;
-
-// Set up a single persistent listener for chunks
-ipcRenderer.on("llm:chunk", (_event, chunk: string) => {
-  if (currentChunkHandler) {
-    currentChunkHandler(chunk);
-  }
-});
-
 contextBridge.exposeInMainWorld("api", {
   createConversation: (title: string) =>
     ipcRenderer.invoke("db:createConversation", title),
@@ -23,8 +13,11 @@ contextBridge.exposeInMainWorld("api", {
   llm: {
     chat: (messages: ChatMessage[], maxTokens?: number) =>
       ipcRenderer.invoke("llm:chat", messages, maxTokens),
-    setChunkHandler: (callback: ((chunk: string) => void) | null) => {
-      currentChunkHandler = callback;
+    onChunk: (callback: (chunk: string) => void) => {
+      const handler = (_event: Electron.IpcRendererEvent, chunk: string) =>
+        callback(chunk);
+      ipcRenderer.on("llm:chunk", handler);
+      return () => ipcRenderer.removeListener("llm:chunk", handler);
     },
   },
   audio: {
