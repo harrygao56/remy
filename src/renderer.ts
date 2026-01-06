@@ -41,17 +41,13 @@ interface Api {
     content: string
   ) => Promise<Message>;
   getMessages: (conversationId: string) => Promise<Message[]>;
-  llm: {
-    chat: (
-      messages: { role: "user" | "assistant" | "system"; content: string }[],
-      maxTokens?: number
-    ) => Promise<string>;
-    onChunk: (callback: (chunk: string) => void) => () => void;
-  };
-  audio: {
-    startRecording: () => Promise<void>;
-    stopRecording: () => Promise<string | null>;
-  };
+  llmChat: (
+    messages: { role: "user" | "assistant" | "system"; content: string }[],
+    maxTokens?: number
+  ) => Promise<string>;
+  llmOnChunk: (callback: (chunk: string) => void) => () => void;
+  audioStartRecording: () => Promise<void>;
+  audioStopRecording: () => Promise<string | null>;
 }
 
 declare global {
@@ -163,7 +159,7 @@ async function generateChatName(userMessage: string): Promise<string> {
   const systemPrompt =
     "Generate a short, descriptive title (3-6 words) for a chat conversation based on the user's first message. Return only the title, nothing else.";
 
-  const generatedTitle = await window.api.llm.chat(
+  const generatedTitle = await window.api.llmChat(
     [
       { role: "system", content: systemPrompt },
       { role: "user", content: userMessage },
@@ -264,14 +260,14 @@ async function sendMessage(content: string) {
   ) as HTMLDivElement;
   let fullResponse = "";
 
-  const unsubscribe = window.api.llm.onChunk((chunk: string) => {
+  const unsubscribe = window.api.llmOnChunk((chunk: string) => {
     fullResponse += chunk;
     contentEl.innerHTML = renderMarkdown(fullResponse);
     scrollToBottom();
   });
 
   try {
-    await window.api.llm.chat(chatMessages);
+    await window.api.llmChat(chatMessages);
     // Save assistant message
     if (currentConversationId) {
       await window.api.addMessage(
@@ -297,7 +293,7 @@ async function handleRecordClick() {
     // Start recording
     try {
       updateRecordingUI("recording");
-      await window.api.audio.startRecording();
+      await window.api.audioStartRecording();
     } catch (err) {
       console.error("Failed to start recording:", err);
       updateRecordingUI("idle");
@@ -307,7 +303,7 @@ async function handleRecordClick() {
     try {
       recordBtn.disabled = true;
       recordBtn.textContent = "Processing...";
-      const text = await window.api.audio.stopRecording();
+      const text = await window.api.audioStopRecording();
       currentTranscription = text || "";
       updateRecordingUI("confirm");
     } catch (err) {
