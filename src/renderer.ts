@@ -41,13 +41,17 @@ interface Api {
     content: string
   ) => Promise<Message>;
   getMessages: (conversationId: string) => Promise<Message[]>;
-  llmChat: (
-    messages: { role: "user" | "assistant" | "system"; content: string }[],
-    maxTokens?: number
-  ) => Promise<string>;
-  llmOnChunk: (callback: (chunk: string) => void) => () => void;
-  audioStartRecording: () => Promise<void>;
-  audioStopRecording: () => Promise<string | null>;
+  llm: {
+    chat: (
+      messages: { role: "user" | "assistant" | "system"; content: string }[],
+      maxTokens?: number
+    ) => Promise<string>;
+    setChunkHandler: (callback: ((chunk: string) => void) | null) => void;
+  };
+  audio: {
+    startRecording: () => Promise<void>;
+    stopRecording: () => Promise<string | null>;
+  };
 }
 
 declare global {
@@ -159,7 +163,7 @@ async function generateChatName(userMessage: string): Promise<string> {
   const systemPrompt =
     "Generate a short, descriptive title (3-6 words) for a chat conversation based on the user's first message. Return only the title, nothing else.";
 
-  const generatedTitle = await window.api.llmChat(
+  const generatedTitle = await window.api.llm.chat(
     [
       { role: "system", content: systemPrompt },
       { role: "user", content: userMessage },
@@ -260,14 +264,15 @@ async function sendMessage(content: string) {
   ) as HTMLDivElement;
   let fullResponse = "";
 
-  const unsubscribe = window.api.llmOnChunk((chunk: string) => {
+  // Set up the chunk handler
+  window.api.llm.setChunkHandler((chunk: string) => {
     fullResponse += chunk;
     contentEl.innerHTML = renderMarkdown(fullResponse);
     scrollToBottom();
   });
 
   try {
-    await window.api.llmChat(chatMessages);
+    await window.api.llm.chat(chatMessages);
     // Save assistant message
     if (currentConversationId) {
       await window.api.addMessage(
@@ -280,7 +285,8 @@ async function sendMessage(content: string) {
     console.error("Chat error:", err);
     contentEl.textContent = "Error: Failed to get response";
   } finally {
-    unsubscribe();
+    // Clear the chunk handler
+    window.api.llm.setChunkHandler(null);
     isStreaming = false;
     recordBtn.disabled = false;
   }
@@ -293,7 +299,7 @@ async function handleRecordClick() {
     // Start recording
     try {
       updateRecordingUI("recording");
-      await window.api.audioStartRecording();
+      await window.api.audio.startRecording();
     } catch (err) {
       console.error("Failed to start recording:", err);
       updateRecordingUI("idle");
@@ -303,7 +309,7 @@ async function handleRecordClick() {
     try {
       recordBtn.disabled = true;
       recordBtn.textContent = "Processing...";
-      const text = await window.api.audioStopRecording();
+      const text = await window.api.audio.stopRecording();
       currentTranscription = text || "";
       updateRecordingUI("confirm");
     } catch (err) {
