@@ -78,7 +78,10 @@ class LlamaService {
       throw new Error("LlamaService: Not ready");
     }
 
-    const context = await this.model.createContext();
+    const context = await this.model.createContext({
+      contextSize: 2048,
+      flashAttention: true,
+    });
 
     try {
       const session = new this.llamaCpp.LlamaChatSession({
