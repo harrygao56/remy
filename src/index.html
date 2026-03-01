@@ -423,6 +423,68 @@
       .hljs-strong {
         font-weight: bold;
       }
+
+      /* Small screen support (e.g. 7" Raspberry Pi display) */
+      @media (max-width: 900px) {
+        .sidebar {
+          width: 180px;
+        }
+        .sidebar-header {
+          padding: 40px 8px 8px;
+        }
+        .new-chat-btn {
+          padding: 10px 8px;
+          font-size: 13px;
+        }
+        .chat-item {
+          padding: 8px 12px;
+          font-size: 13px;
+        }
+        .messages {
+          padding: 16px;
+          padding-top: 40px;
+        }
+        .message {
+          font-size: 14px;
+          padding: 10px 12px;
+        }
+        .record-btn {
+          padding: 10px 8px;
+          font-size: 13px;
+        }
+        .input-area {
+          padding: 6px 8px 8px;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .sidebar {
+          width: 140px;
+        }
+        .sidebar-header {
+          padding: 36px 6px 6px;
+        }
+        .new-chat-btn {
+          padding: 8px 6px;
+          font-size: 12px;
+        }
+        .chat-item {
+          padding: 6px 8px;
+          font-size: 12px;
+        }
+        .messages {
+          padding: 10px;
+          padding-top: 36px;
+        }
+        .message {
+          font-size: 13px;
+          padding: 8px 10px;
+        }
+        .record-btn {
+          padding: 8px 6px;
+          font-size: 12px;
+        }
+      }
     </style>
   </head>
   <body>

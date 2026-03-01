@@ -27,8 +27,8 @@ const createWindow = (): void => {
   mainWindow = new BrowserWindow({
     height: 700,
     width: 1100,
-    minWidth: 800,
-    minHeight: 500,
+    minWidth: 600,
+    minHeight: 400,
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 16, y: 16 },
     webPreferences: {
