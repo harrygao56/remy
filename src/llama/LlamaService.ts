@@ -81,6 +81,7 @@ class LlamaService {
     const context = await this.model.createContext({
       contextSize: 2048,
       flashAttention: true,
+      threads: 2,
     });
 
     try {
