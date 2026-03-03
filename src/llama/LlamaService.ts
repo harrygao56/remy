@@ -2,7 +2,7 @@ import type { Llama, LlamaModel } from "node-llama-cpp";
 import path from "path";
 import { app } from "electron";
 
-const MODEL = "LFM2 1.2B GGUF.gguf";
+const MODEL = "LFM2 350M GGUF.gguf";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -79,7 +79,7 @@ class LlamaService {
     }
 
     const context = await this.model.createContext({
-      contextSize: 1024,
+      contextSize: 4096,
       flashAttention: true,
       threads: 2,
     });
