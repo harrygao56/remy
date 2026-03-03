@@ -24,13 +24,18 @@ let mainWindow: BrowserWindow | null = null;
 
 const createWindow = (): void => {
   // Create the browser window.
+  const isKiosk = process.argv.includes("--kiosk");
+
   mainWindow = new BrowserWindow({
     height: 700,
     width: 1100,
     minWidth: 600,
     minHeight: 400,
-    titleBarStyle: "hiddenInset",
-    trafficLightPosition: { x: 16, y: 16 },
+    titleBarStyle: isKiosk ? "default" : "hiddenInset",
+    trafficLightPosition: isKiosk ? undefined : { x: 16, y: 16 },
+    fullscreen: isKiosk,
+    kiosk: isKiosk,
+    autoHideMenuBar: isKiosk,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
@@ -39,8 +44,9 @@ const createWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (!isKiosk) {
+    mainWindow.webContents.openDevTools();
+  }
 };
 
 // This method will be called when Electron has finished
