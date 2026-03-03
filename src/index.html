@@ -13,6 +13,7 @@
 
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 16px;
         background: #fff;
         color: #111;
         height: 100vh;
@@ -46,7 +47,7 @@
         background: #fff;
         border: 1px solid #222;
         cursor: pointer;
-        font-size: 15px;
+        font-size: 16px;
         -webkit-app-region: no-drag;
       }
 
@@ -61,10 +62,10 @@
       }
 
       .chat-item {
-        padding: 12px 16px;
+        padding: 14px 16px;
         border-bottom: 1px solid #eee;
         cursor: pointer;
-        font-size: 15px;
+        font-size: 17px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -98,7 +99,7 @@
         margin: 0 auto 16px;
         padding: 12px 16px;
         line-height: 1.5;
-        font-size: 16px;
+        font-size: 17px;
       }
 
       .message.user {
@@ -112,7 +113,7 @@
       }
 
       .message-role {
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 600;
         margin-bottom: 4px;
         text-transform: uppercase;
@@ -150,7 +151,7 @@
         color: #fff;
         border: 1px solid #222;
         cursor: pointer;
-        font-size: 15px;
+        font-size: 16px;
         transition: background 0.2s;
       }
 
@@ -214,7 +215,7 @@
         flex: 1;
         padding: 14px 12px;
         cursor: pointer;
-        font-size: 15px;
+        font-size: 16px;
         transition: background 0.2s;
       }
 
@@ -429,30 +430,35 @@
       /* Small screen support (e.g. 7" Raspberry Pi display) */
       @media (max-width: 900px) {
         .sidebar {
-          width: 180px;
+          width: 200px;
         }
         .sidebar-header {
-          padding: 40px 8px 8px;
+          padding: 40px 10px 10px;
         }
         .new-chat-btn {
-          padding: 10px 8px;
-          font-size: 13px;
+          padding: 12px 10px;
+          font-size: 15px;
         }
         .chat-item {
-          padding: 8px 12px;
-          font-size: 13px;
+          padding: 10px 14px;
+          font-size: 15px;
         }
         .messages {
           padding: 16px;
           padding-top: 40px;
         }
         .message {
-          font-size: 14px;
-          padding: 10px 12px;
+          font-size: 16px;
+          padding: 10px 14px;
         }
         .record-btn {
-          padding: 10px 8px;
-          font-size: 13px;
+          padding: 12px 10px;
+          font-size: 15px;
+        }
+        .confirm-btn,
+        .retry-btn {
+          padding: 12px 10px;
+          font-size: 15px;
         }
         .input-area {
           padding: 6px 8px 8px;
@@ -461,30 +467,35 @@
 
       @media (max-width: 700px) {
         .sidebar {
-          width: 140px;
+          width: 170px;
         }
         .sidebar-header {
-          padding: 36px 6px 6px;
+          padding: 36px 8px 8px;
         }
         .new-chat-btn {
-          padding: 8px 6px;
-          font-size: 12px;
+          padding: 10px 8px;
+          font-size: 14px;
         }
         .chat-item {
-          padding: 6px 8px;
-          font-size: 12px;
+          padding: 8px 10px;
+          font-size: 14px;
         }
         .messages {
           padding: 10px;
           padding-top: 36px;
         }
         .message {
-          font-size: 13px;
+          font-size: 15px;
           padding: 8px 10px;
         }
         .record-btn {
-          padding: 8px 6px;
-          font-size: 12px;
+          padding: 10px 8px;
+          font-size: 14px;
+        }
+        .confirm-btn,
+        .retry-btn {
+          padding: 10px 8px;
+          font-size: 14px;
         }
       }
     </style>
