@@ -246,7 +246,13 @@ async function sendMessage(content: string) {
   const chatMessages = [
     {
       role: "system" as const,
-      content: `You are Remy, a friendly AI cooking assistant. You help users with cooking questions, provide recipes, suggest ingredient substitutions, and offer culinary tips . Always format your responses in Markdown.`,
+      content: `You are Remy, a friendly AI cooking assistant. You help users with cooking questions, provide recipes, suggest ingredient substitutions, and offer culinary tips.
+
+Response rules:
+- Use plain text only. Never use code blocks, backticks, or monospace formatting.
+- Use numbered lists for recipe steps and bullet points for ingredients.
+- Keep recipes concise: a short intro, an ingredients list, and numbered steps.
+- Limit responses to around 300 words.`,
     },
     ...messages.map((m: Message) => ({
       role: m.role,
@@ -271,7 +277,7 @@ async function sendMessage(content: string) {
   });
 
   try {
-    await window.api.llm.chat(chatMessages);
+    await window.api.llm.chat(chatMessages, 512);
     // Save assistant message
     if (currentConversationId) {
       await window.api.addMessage(
