@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: out/make/**/*
+
+  build-linux-x64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: sudo apt-get update && sudo apt-get install -y dpkg fakeroot
+      - run: npm ci
+      - run: npm run make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64
+          path: out/make/**/*
+
+  build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: sudo apt-get update && sudo apt-get install -y dpkg fakeroot
+      - run: npm ci
+      - run: npm run make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64
+          path: out/make/**/*
+
+  release:
+    needs: [build-macos, build-linux-x64, build-linux-arm64]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
