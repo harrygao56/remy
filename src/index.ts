@@ -20,8 +20,6 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-app.commandLine.appendSwitch("touch-events", "enabled");
-
 let mainWindow: BrowserWindow | null = null;
 
 const createWindow = (): void => {
